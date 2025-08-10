@@ -1,43 +1,92 @@
 document.addEventListener('DOMContentLoaded', () => {
     const gridItems = document.querySelectorAll('.grid-item');
     const totalAhorradoSpan = document.getElementById('total-ahorrado');
-    const cajasTachadasSpan = document.getElementById('cajas-tachadas');
+    const cajasCompletadasSpan = document.getElementById('cajas-completadas');
+    const toggleLockBtn = document.getElementById('toggle-lock-btn');
     
-    // Load saved progress from local storage
-    let totalAhorrado = parseInt(localStorage.getItem('totalAhorrado')) || 0;
-    let cajasTachadas = parseInt(localStorage.getItem('cajasTachadas')) || 0;
-    let completedItems = JSON.parse(localStorage.getItem('completedItems')) || [];
+    let isLocked = true; // Por defecto, los cuadros están bloqueados
+    let totalAhorrado = 0;
+    let cajasCompletadas = 0;
 
-    // Update the UI with loaded progress
-    totalAhorradoSpan.textContent = totalAhorrado.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
-    cajasTachadasSpan.textContent = cajasTachadas;
-    
-    completedItems.forEach(index => {
-        if (gridItems[index]) {
-            gridItems[index].classList.add('completed');
-        }
-    });
+    // Función para actualizar la interfaz
+    const updateUI = () => {
+        totalAhorradoSpan.textContent = totalAhorrado.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+        cajasCompletadasSpan.textContent = cajasCompletadas;
+    };
 
+    // Cargar el progreso guardado del Local Storage
+    const loadProgress = () => {
+        const savedProgress = JSON.parse(localStorage.getItem('savingsTrackerProgress')) || {
+            completedItems: [],
+            totalAhorrado: 0,
+            cajasCompletadas: 0
+        };
+
+        totalAhorrado = savedProgress.totalAhorrado;
+        cajasCompletadas = savedProgress.cajasCompletadas;
+        
+        savedProgress.completedItems.forEach(index => {
+            if (gridItems[index]) {
+                gridItems[index].classList.add('completed');
+            }
+        });
+        updateUI();
+    };
+
+    // Guardar el progreso en el Local Storage
+    const saveProgress = () => {
+        const completedItems = Array.from(gridItems).reduce((acc, item, index) => {
+            if (item.classList.contains('completed')) {
+                acc.push(index);
+            }
+            return acc;
+        }, []);
+
+        const progress = {
+            completedItems,
+            totalAhorrado,
+            cajasCompletadas
+        };
+
+        localStorage.setItem('savingsTrackerProgress', JSON.stringify(progress));
+    };
+
+    // Manejar el clic en los cuadros
     gridItems.forEach((item, index) => {
         item.addEventListener('click', () => {
-            if (!item.classList.contains('completed')) {
-                item.classList.add('completed');
-                
+            if (!isLocked) {
                 const amount = parseInt(item.getAttribute('data-amount'));
-                totalAhorrado += amount;
-                cajasTachadas++;
-                
-                // Update and save progress
-                totalAhorradoSpan.textContent = totalAhorrado.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
-                cajasTachadasSpan.textContent = cajasTachadas;
-                
-                localStorage.setItem('totalAhorrado', totalAhorrado);
-                localStorage.setItem('cajasTachadas', cajasTachadas);
 
-                // Save which items are completed
-                completedItems.push(index);
-                localStorage.setItem('completedItems', JSON.stringify(completedItems));
+                if (item.classList.contains('completed')) {
+                    item.classList.remove('completed');
+                    totalAhorrado -= amount;
+                    cajasCompletadas--;
+                } else {
+                    item.classList.add('completed');
+                    totalAhorrado += amount;
+                    cajasCompletadas++;
+                }
+                
+                updateUI();
+                saveProgress();
             }
         });
     });
+
+    // Manejar el botón de bloqueo/desbloqueo
+    toggleLockBtn.addEventListener('click', () => {
+        isLocked = !isLocked;
+        if (isLocked) {
+            toggleLockBtn.textContent = 'Bloquear Cuadros';
+            gridItems.forEach(item => item.classList.add('locked'));
+        } else {
+            toggleLockBtn.textContent = 'Desbloquear Cuadros';
+            gridItems.forEach(item => item.classList.remove('locked'));
+        }
+    });
+
+    // Inicialización al cargar la página
+    loadProgress();
+    // Bloquear los cuadros por defecto al iniciar
+    gridItems.forEach(item => item.classList.add('locked'));
 });
