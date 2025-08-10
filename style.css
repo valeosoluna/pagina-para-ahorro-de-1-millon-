@@ -1,61 +1,105 @@
 body {
-    font-family: sans-serif;
+    font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f2f5;
+    background-color: #fce4ec; /* Rosado claro de fondo */
     margin: 0;
 }
 
 .container {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     text-align: center;
+    width: 90%;
+    max-width: 800px;
 }
 
 h1 {
-    color: #4CAF50;
-    font-size: 2em;
+    color: #e91e63; /* Rosado fuerte */
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.header-controls {
+    margin-bottom: 20px;
+}
+
+#toggle-lock-btn {
+    background-color: #f48fb1; /* Rosado medio */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#toggle-lock-btn:hover {
+    background-color: #e91e63;
 }
 
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(9, 1fr); /* 9 columns as in the image */
-    gap: 5px;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 7px;
     margin: 20px 0;
 }
 
 .grid-item {
-    padding: 15px;
-    background-color: #e0e0e0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 12px 5px;
+    background-color: #f8bbd0; /* Rosado más suave */
+    border: 2px solid #e91e63;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s, text-decoration 0.2s;
+    transition: background-color 0.3s, transform 0.2s;
     font-weight: bold;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none; /* Evita que el texto sea seleccionado */
 }
 
-.grid-item:hover {
-    background-color: #d0d0d0;
+.grid-item:hover:not(.completed):not(.locked) {
+    background-color: #f06292;
+    transform: scale(1.05);
 }
 
 .grid-item.completed {
-    background-color: #4CAF50;
+    background-color: #4caf50; /* Un color para "completado" */
     color: white;
     text-decoration: line-through;
-    pointer-events: none; /* Prevents further clicks on completed items */
+    border: 2px solid #388e3c;
+    cursor: default;
+    transform: none;
+}
+
+/* Estilo para los cuadros bloqueados */
+.grid-item.locked {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .summary {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #e0e0e0;
-    border-radius: 8px;
+    margin-top: 25px;
+    padding: 20px;
+    background-color: #f48fb1; /* Rosado medio para el resumen */
+    border-radius: 10px;
+    color: white;
 }
 
 .summary h3 {
-    color: #333;
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+.summary p {
+    font-size: 1.2em;
+    font-weight: bold;
 }
